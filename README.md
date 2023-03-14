@@ -59,27 +59,13 @@ python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
 python get_npz.py --dataset cifar10
 ```
 
-### Eval 8-step DDIM
-
+### Eval
 ```
-python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-		    --logdir ./logs/CIFAR10/1024 --stride 128
+# 8-step DDIM
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/1024 --stride 128
+# 4-step PD
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4
+# 4-step RCFD
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_densenet201
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_resnet18
 ```
-
-### Eval 4-step PD
-
-```
-python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-		    --logdir ./logs/CIFAR10/4
-```
-
-### Eval 4-step RCFD
-
-```
-python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-		    --logdir ./logs/CIFAR10/4_densenet201
-		    
-python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-		    --logdir ./logs/CIFAR10/4_resnet18
-```
-
