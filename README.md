@@ -30,6 +30,7 @@ python -m torch.distributed.launch --nproc_per_node=4 PD.py \
 
 ```
 python train.py --model densenet201
+python train.py --model resnet18
 ```
 
 ### Distill using RCFD
@@ -37,9 +38,15 @@ python train.py --model densenet201
 ```
 python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
     --flagfile ./config/CIFAR10_RCFD.txt --gpu-id 0,1,2,3 \
+    --logdir ./logs/CIFAR10/4_resnet18 --base_ckpt ./logs/CIFAR10/8 \
+    --classifier resnet18 --classifier_path ./classifier/result/cifar10/resnet18 \
+    --temp 0.95 --alpha 0.003 --beta 0.75
+
+python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
+    --flagfile ./config/CIFAR10_RCFD.txt --gpu-id 0,1,2,3 \
     --logdir ./logs/CIFAR10/4_densenet201 --base_ckpt ./logs/CIFAR10/8 \
     --classifier densenet201 --classifier_path ./classifier/result/cifar10/densenet201 \
-    --temp 0.95 --alpha 0.003 --beta 0.75
+    --temp 0.9 --alpha 0
 ```
 
 
@@ -56,20 +63,23 @@ python get_npz.py --dataset cifar10
 
 ```
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-										--logdir ./logs/CIFAR10/1024 --stride 128
+		    --logdir ./logs/CIFAR10/1024 --stride 128
 ```
 
 ### Eval 4-step PD
 
 ```
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-										--logdir ./logs/CIFAR10/4
+		    --logdir ./logs/CIFAR10/4
 ```
 
 ### Eval 4-step RCFD
 
 ```
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
-										--logdir ./logs/CIFAR10/4_densenet201
+		    --logdir ./logs/CIFAR10/4_densenet201
+		    
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt \
+		    --logdir ./logs/CIFAR10/4_resnet18
 ```
 
