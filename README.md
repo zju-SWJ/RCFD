@@ -44,6 +44,7 @@ python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
     --logdir ./logs/CIFAR10/4_resnet18 --base_ckpt ./logs/CIFAR10/8 \
     --classifier resnet18 --classifier_path ./classifier/result/cifar10/resnet18 \
     --temp 0.95 --alpha 0.003 --beta 0.75
+    # alpha here is actually the beta in the paper, and beta here is actually the gamma in the paper
 
 python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
     --flagfile ./config/CIFAR10_RCFD.txt --gpu-id 0,1,2,3 \
@@ -69,8 +70,8 @@ python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10
 # 4-step PD
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4
 # 4-step RCFD
-python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_densenet201
-python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_resnet18
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_densenet201/temp0.9/alpha0
+python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_resnet18/temp0.95/alpha0.003/beta0.75
 ```
 
 ## Citation
