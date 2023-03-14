@@ -1,4 +1,7 @@
 #  ACCELERATING DIFFUSION SAMPLING WITH CLASSIFIER-BASED FEATURE DISTILLATION
+## Paper
+[arxiv][https://arxiv.org/abs/2203.14001]
+
 ## Environment
 Python 3.6.13, torch 1.9.0
 
@@ -68,4 +71,15 @@ python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10
 # 4-step RCFD
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_densenet201
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_resnet18
+```
+
+## Citation
+If you find this repository useful, please consider citing the following paper:
+```
+@article{sun2022accelerating,
+  title={Accelerating Diffusion Sampling with Classifier-based Feature Distillation},
+  author={Sun, Wujie and Chen, Defang and Wang, Can and Ye, Deshi and Feng, Yan and Chen, Chun},
+  journal={arXiv preprint arXiv:2211.12039},
+  year={2022}
+}
 ```
