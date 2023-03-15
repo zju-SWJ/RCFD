@@ -1,6 +1,6 @@
 #  ACCELERATING DIFFUSION SAMPLING WITH CLASSIFIER-BASED FEATURE DISTILLATION
 ## Paper
-[https://arxiv.org/abs/2203.14001](https://arxiv.org/abs/2203.14001)
+[https://arxiv.org/abs/2211.12039](https://arxiv.org/abs/2211.12039)
 
 ## Environment
 Python 3.6.13, torch 1.9.0
