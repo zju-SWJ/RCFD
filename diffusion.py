@@ -64,7 +64,7 @@ class GaussianDiffusionTrainer(nn.Module):
             # x_0_rec = torch.clip(x_0_rec, -1, 1) # clip should not be used during training?
             bs = x_0.size(0)
             loss_x_0 = torch.mean(F.mse_loss(x_0_rec, x_0, reduction='none').reshape(bs, -1), dim=-1)
-            loss_eps = torch.mean(F.mse_loss(self.predict_eps_from_x(x_t, x_0_rec, t), noise, reduction='none').reshape(bs, -1), dim=-1)
+            loss_eps = torch.mean(F.mse_loss(self.predict_eps_from_x(x_t, x_0_rec, t * self.time_scale), noise, reduction='none').reshape(bs, -1), dim=-1)
             if self.loss_type == 'x':
                 return torch.mean(loss_x_0)
             elif self.loss_type == 'eps':
