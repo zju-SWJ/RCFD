@@ -35,7 +35,7 @@ class GaussianDiffusionTrainer(nn.Module):
         # self.register_buffer(
         #    'betas', torch.linspace(beta_1, beta_T, T).double())
         self.register_buffer(
-            'betas', make_beta_cosine(self.T + 1)) # change from T to T+1
+            'betas', make_beta_cosine(self.T * self.time_scale + 1)) # change from T to T+1
         alphas = 1. - self.betas
         alphas_bar = torch.cumprod(alphas, dim=0)
 
@@ -286,7 +286,7 @@ class GaussianDiffusionSampler(nn.Module):
                 eps_rec_rec = self.predict_eps_from_x(z_t_minus_1, x_0_rec_rec, (t - 1) * self.time_scale)
             elif self.mean_type == 'epsilon':
                 eps_rec_rec = self.model(z_t_minus_1, (t - 1) * self.time_scale, y)
-                x_0_rec = self.predict_xstart_from_eps(z_t_minus_1, eps_rec_rec, (t - 1) * self.time_scale)
+                x_0_rec_rec = self.predict_xstart_from_eps(z_t_minus_1, eps_rec_rec, (t - 1) * self.time_scale)
                 # x_0_rec_rec = torch.clip(x_0_rec_rec, -1, 1)
             z_t_minus_2 = (
                 extract(self.sqrt_alphas_bar, (t - 2) * self.time_scale, x_0.shape) * x_0_rec_rec +
@@ -349,7 +349,7 @@ class GaussianDiffusionSampler(nn.Module):
                 eps_rec_rec = self.predict_eps_from_x(z_t_minus_1, x_0_rec_rec, (t - 1) * self.time_scale)
             elif self.mean_type == 'epsilon':
                 eps_rec_rec = self.model(z_t_minus_1, (t - 1) * self.time_scale, y)
-                x_0_rec = self.predict_xstart_from_eps(z_t_minus_1, eps_rec_rec, (t - 1) * self.time_scale)
+                x_0_rec_rec = self.predict_xstart_from_eps(z_t_minus_1, eps_rec_rec, (t - 1) * self.time_scale)
                 # x_0_rec_rec = torch.clip(x_0_rec_rec, -1, 1)
             z_t_minus_2 = (
                 extract(self.sqrt_alphas_bar, (t - 2) * self.time_scale, x_0.shape) * x_0_rec_rec +
