@@ -13,13 +13,13 @@ Python 3.6.13, torch 1.9.0
 ```
 python -m torch.distributed.launch --nproc_per_node=4 train_base.py \
     --flagfile ./config/CIFAR10_BASE.txt \
-    --gpu-id 0,1,2,3 --logdir ./logs/CIFAR10/1024
+    --gpu_id 0,1,2,3 --logdir ./logs/CIFAR10/1024
 ```
 
 ### Distill using PD
 ```
 python -m torch.distributed.launch --nproc_per_node=4 PD.py \
-    --flagfile ./config/CIFAR10_PD.txt --gpu-id 0,1,2,3 \
+    --flagfile ./config/CIFAR10_PD.txt --gpu_id 0,1,2,3 \
     --logdir ./logs/CIFAR10/512 --base_ckpt ./logs/CIFAR10/1024
 
 ...
@@ -40,14 +40,14 @@ python train.py --model resnet18
 
 ```
 python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
-    --flagfile ./config/CIFAR10_RCFD.txt --gpu-id 0,1,2,3 \
+    --flagfile ./config/CIFAR10_RCFD.txt --gpu_id 0,1,2,3 \
     --logdir ./logs/CIFAR10/4_resnet18 --base_ckpt ./logs/CIFAR10/8 \
     --classifier resnet18 --classifier_path ./classifier/result/cifar10/resnet18 \
     --temp 0.95 --alpha 0.003 --beta 0.75
     # alpha here is actually the beta in the paper, and beta here is actually the gamma in the paper
 
 python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
-    --flagfile ./config/CIFAR10_RCFD.txt --gpu-id 0,1,2,3 \
+    --flagfile ./config/CIFAR10_RCFD.txt --gpu_id 0,1,2,3 \
     --logdir ./logs/CIFAR10/4_densenet201 --base_ckpt ./logs/CIFAR10/8 \
     --classifier densenet201 --classifier_path ./classifier/result/cifar10/densenet201 \
     --temp 0.9 --alpha 0
