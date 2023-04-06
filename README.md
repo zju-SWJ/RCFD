@@ -25,7 +25,7 @@ python -m torch.distributed.launch --nproc_per_node=4 PD.py \
 ...
 
 python -m torch.distributed.launch --nproc_per_node=4 PD.py \
-    --flagfile ./config/CIFAR10_PD.txt \
+    --flagfile ./config/CIFAR10_PD.txt --gpu_id 0,1,2,3 \
     --logdir ./logs/CIFAR10/4 --base_ckpt ./logs/CIFAR10/8
 ```
 
