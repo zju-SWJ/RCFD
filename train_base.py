@@ -122,7 +122,7 @@ def train():
 
     # model setup
     net_model = UNet(
-        T=FLAGS.T, ch=FLAGS.ch, ch_mult=FLAGS.ch_mult, attn=FLAGS.attn,
+        T=FLAGS.T*FLAGS.time_scale, ch=FLAGS.ch, ch_mult=FLAGS.ch_mult, attn=FLAGS.attn,
         num_res_blocks=FLAGS.num_res_blocks, dropout=FLAGS.dropout,
         conditional=FLAGS.conditional, class_num=FLAGS.class_num)
     ema_model = copy.deepcopy(net_model)
@@ -182,7 +182,8 @@ def train():
 
         # sample
         if FLAGS.sample_step > 0 and (step % FLAGS.sample_step == 0 or step == 1):
-            net_model.eval()
+            # net_model.eval()
+            ema_model.eval()
             with torch.no_grad():
                 y_target = torch.randint(FLAGS.class_num, size=(x_T.shape[0],), device=x_T.device)
                 '''
@@ -218,7 +219,8 @@ def train():
                     save_image(grid, path)
                     writer.add_image('ddim_noclip', grid, step)
                 '''
-            net_model.train()
+            # net_model.train()
+            ema_model.train()
 
         # save
         if FLAGS.save_step > 0 and step % FLAGS.save_step == 0:
