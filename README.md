@@ -57,7 +57,7 @@ python -m torch.distributed.launch --nproc_per_node=4 RCFD.py \
 
 ## Evaluation
 
-### To eval, run score/get_npz.py first
+### To eval, run score/get_npz.py first or download from [google drive](https://drive.google.com/drive/folders/1UBdzl6GtNMwNQ5U-4ESlIer43tNjiGJC?usp=sharing)
 
 ```
 python get_npz.py --dataset cifar10
