@@ -84,3 +84,6 @@ If you find this repository useful, please consider citing the following paper:
   year={2022}
 }
 ```
+
+## Acknowledgment
+This codebase is heavily borrowed from [pytorch-ddpm]{https://github.com/w86763777/pytorch-ddpm} and [diffusion_distiller]{https://github.com/Hramchenko/diffusion_distiller}.
