@@ -70,6 +70,10 @@ def ema(source, target, decay):
             target_dict[key].data * decay +
             source_dict[key].data * (1 - decay))
 
+def infiniteloop(dataloader):
+    while True:
+        for x, y in iter(dataloader):
+            yield x, y
 
 def get_rank():
     if not dist.is_available():
@@ -119,6 +123,7 @@ def train():
     else:
         train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True,
                                                 num_workers=FLAGS.num_workers, drop_last=True)
+    train_looper = infiniteloop(train_loader)
 
     # model setup
     net_model = UNet(
@@ -165,7 +170,7 @@ def train():
             train_sampler.set_epoch(step)
         # train
         optim.zero_grad()
-        samples = next(iter(train_loader))
+        samples = next(train_looper)
         x_0, y = samples[0].cuda(FLAGS.local_rank), samples[1].cuda(FLAGS.local_rank)
         loss = trainer(x_0, y)
         torch.distributed.barrier()
