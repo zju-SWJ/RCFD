@@ -66,6 +66,10 @@ def ema(source, target, decay):
             target_dict[key].data * decay +
             source_dict[key].data * (1 - decay))
 
+def infiniteloop(dataloader):
+    while True:
+        for x, y in iter(dataloader):
+            yield x, y
 
 def get_rank():
     if not dist.is_available():
@@ -139,7 +143,7 @@ def train():
     train_sampler = torch.utils.data.distributed.DistributedSampler(dataset, seed=FLAGS.seed)
     train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
                                                num_workers=FLAGS.num_workers, pin_memory=True, sampler=train_sampler, drop_last=True)
-
+    train_looper = infiniteloop(train_loader)
     # log setup
     x_T = ckpt['x_T']
     # x_T = torch.randn(int(FLAGS.sample_size / FLAGS.num_gpus), 3, FLAGS.img_size, FLAGS.img_size)
@@ -159,7 +163,7 @@ def train():
         train_sampler.set_epoch(step)
         # train
         optim.zero_grad()
-        samples = next(iter(train_loader))
+        samples = next(train_looper)
         x_0, y = samples[0].cuda(FLAGS.local_rank), samples[1].cuda(FLAGS.local_rank)
         loss = teacher_sampler.module.distill(student_sampler.module, x_0, y)
         torch.distributed.barrier()
