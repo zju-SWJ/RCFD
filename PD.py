@@ -165,7 +165,7 @@ def train():
         optim.zero_grad()
         samples = next(train_looper)
         x_0, y = samples[0].cuda(FLAGS.local_rank), samples[1].cuda(FLAGS.local_rank)
-        loss = teacher_sampler.module.distill(student_sampler.module, x_0, y)
+        loss = teacher_sampler.module.distill(student_sampler, x_0, y)
         torch.distributed.barrier()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
