@@ -212,7 +212,7 @@ def train():
         # train
         samples = next(train_looper)
         x_0, y = samples[0].cuda(FLAGS.local_rank), samples[1].cuda(FLAGS.local_rank)
-        loss, entropy, div, feat = teacher_sampler.module.my_distill_latest(student_sampler.module, classifier, x_0, y=y,
+        loss, entropy, div, feat = teacher_sampler.module.my_distill_latest(student_sampler, classifier, x_0, y=y,
                                                     temp=FLAGS.temp, alpha=FLAGS.alpha, beta=FLAGS.beta, feat_div=FLAGS.feat_div,
                                                     imagenet_cls=imagenet_cls, prediction=FLAGS.prediction)
         
