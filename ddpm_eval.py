@@ -70,7 +70,7 @@ def evaluate(sampler, model):
             batch_size = min(FLAGS.batch_size, FLAGS.num_images - i)
             x_T = torch.randn((batch_size, 3, FLAGS.img_size, FLAGS.img_size))
             y_target = torch.randint(FLAGS.class_num, size=(x_T.shape[0],), device=device)
-            batch_images = sampler(x_T.to(device), y=y_target).cpu()
+            batch_images = sampler.ddpm(x_T.to(device), y=y_target).cpu()
             images.append((batch_images + 1) / 2)
         images = torch.cat(images, dim=0).numpy()
     model.train()
