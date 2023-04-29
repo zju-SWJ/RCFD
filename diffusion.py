@@ -198,8 +198,11 @@ class GaussianDiffusionSampler(nn.Module):
             raise NotImplementedError(self.mean_type)
 
         return model_mean, model_log_var
-
-    def forward(self, x_T, clip=True, y=-1): # DDPM sampler with stride 1
+        
+    def forward(self, z_t, t, y):
+        return self.model(z_t, t, y)
+        
+    def ddpm(self, x_T, clip=True, y=-1): # DDPM sampler with stride 1
         x_t = x_T
         for time_step in reversed(range(0, self.T + 1)):
             t = x_t.new_ones([x_T.shape[0], ], dtype=torch.long) * time_step
@@ -261,7 +264,7 @@ class GaussianDiffusionSampler(nn.Module):
         return imgs
     
     def distill(self, student, x_0, y=-1):
-        t = 2 * torch.randint(1, student.T + 1, (x_0.shape[0],), device=x_0.device)
+        t = 2 * torch.randint(1, student.module.T + 1, (x_0.shape[0],), device=x_0.device)
         # take teacher.T=512, student.T=256 for example, t \in 2 * [1, 2, ..., 256] = [2, 4, ..., 512]
         noise = torch.randn_like(x_0)
         with torch.no_grad():
@@ -297,10 +300,10 @@ class GaussianDiffusionSampler(nn.Module):
             eps_target = self.predict_eps_from_x(z_t, x_target, t * self.time_scale)
         
         if self.mean_type == 'xstart':
-            x_0_predicted = student.model(z_t, t // 2 * student.time_scale, y)
+            x_0_predicted = student(z_t, t * self.time_scale, y)
             eps_predicted = self.predict_eps_from_x(z_t, x_0_predicted, t * self.time_scale)
         elif self.mean_type == 'epsilon':
-            eps_predicted = student.model(z_t, t // 2 * student.time_scale, y)
+            eps_predicted = student(z_t, t * self.time_scale, y)
             x_0_predicted = self.predict_xstart_from_eps(z_t, eps_predicted, t * self.time_scale)
         bs = x_0.size(0)
         loss_x_0 = torch.mean(F.mse_loss(x_0_predicted, x_target, reduction='none').reshape(bs, -1), dim=-1)
@@ -324,7 +327,7 @@ class GaussianDiffusionSampler(nn.Module):
         return diversity
 
     def my_distill_latest(self, student, classifier, x_0, y=-1, temp=0.95, alpha=0, beta=0, feat_div=False, imagenet_cls=False, prediction=False):
-        t = 2 * torch.randint(1, student.T + 1, (x_0.shape[0],), device=x_0.device)
+        t = 2 * torch.randint(1, student.module.T + 1, (x_0.shape[0],), device=x_0.device)
         # take teacher.T=512, student.T=256 for example, t \in 2 * [1, 2, ..., 256] = [2, 4, ..., 512]
         noise = torch.randn_like(x_0)
         with torch.no_grad():
@@ -362,9 +365,9 @@ class GaussianDiffusionSampler(nn.Module):
             p_T, feat_T = classifier(x_target) # teacher prediction
         
         if self.mean_type == 'xstart':
-            x_0_predicted = student.model(z_t, t // 2 * student.time_scale, y)
+            x_0_predicted = student(z_t, t * self.time_scale, y)
         elif self.mean_type == 'epsilon':
-            eps_predicted = student.model(z_t, t // 2 * student.time_scale, y)
+            eps_predicted = student(z_t, t * self.time_scale, y)
             x_0_predicted = self.predict_xstart_from_eps(z_t, eps_predicted, t * self.time_scale)
         if imagenet_cls:
             x_0_predicted = F.interpolate(x_0_predicted, size=224, mode='bilinear', align_corners=True)
