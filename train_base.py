@@ -131,8 +131,7 @@ def train():
         num_res_blocks=FLAGS.num_res_blocks, dropout=FLAGS.dropout,
         conditional=FLAGS.conditional, class_num=FLAGS.class_num)
     ema_model = copy.deepcopy(net_model)
-    optim = torch.optim.Adam(net_model.parameters(), lr=FLAGS.lr, weight_decay=FLAGS.wd)
-    sched = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=warmup_lr)
+    
     trainer = GaussianDiffusionTrainer(
         net_model, FLAGS.T, FLAGS.time_scale, FLAGS.loss_type, FLAGS.mean_type).cuda(FLAGS.local_rank)
     net_sampler = GaussianDiffusionSampler(
@@ -145,7 +144,10 @@ def train():
         trainer = torch.nn.parallel.DistributedDataParallel(trainer, device_ids=[FLAGS.local_rank], output_device=FLAGS.local_rank)
         net_sampler = torch.nn.parallel.DistributedDataParallel(net_sampler, device_ids=[FLAGS.local_rank], output_device=FLAGS.local_rank)
         ema_sampler = torch.nn.parallel.DistributedDataParallel(ema_sampler, device_ids=[FLAGS.local_rank], output_device=FLAGS.local_rank)
-
+    
+    optim = torch.optim.Adam(net_model.parameters(), lr=FLAGS.lr, weight_decay=FLAGS.wd)
+    sched = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=warmup_lr)
+    
     # log setup
     x_T = torch.randn(int(FLAGS.sample_size / FLAGS.num_gpus), 3, FLAGS.img_size, FLAGS.img_size)
     x_T = x_T.cuda(FLAGS.local_rank)
