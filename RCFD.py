@@ -166,8 +166,7 @@ def train():
     else:
         model.load_state_dict(ckpt['net_model'])
     student_model = copy.deepcopy(model)
-    optim = torch.optim.Adam(student_model.parameters(), lr=FLAGS.lr, weight_decay=FLAGS.wd)
-    sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=FLAGS.total_steps)
+    
     # student_ema_model = copy.deepcopy(model)
     teacher_sampler = GaussianDiffusionSampler(
         model, T, time_scale, img_size=FLAGS.img_size,
@@ -183,6 +182,9 @@ def train():
         student_sampler = torch.nn.parallel.DistributedDataParallel(student_sampler, device_ids=[FLAGS.local_rank], output_device=FLAGS.local_rank)
         classifier = torch.nn.parallel.DistributedDataParallel(classifier, device_ids=[FLAGS.local_rank], output_device=FLAGS.local_rank)
         # student_ema_sampler = torch.nn.parallel.DistributedDataParallel(student_ema_sampler, device_ids=[FLAGS.local_rank], output_device=FLAGS.local_rank)
+    
+    optim = torch.optim.Adam(student_model.parameters(), lr=FLAGS.lr, weight_decay=FLAGS.wd)
+    sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=FLAGS.total_steps)
     
     batch_size = int(FLAGS.batch_size / FLAGS.num_gpus)
     train_sampler = torch.utils.data.distributed.DistributedSampler(dataset, seed=FLAGS.seed)
