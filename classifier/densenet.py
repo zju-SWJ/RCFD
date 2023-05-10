@@ -17,36 +17,19 @@ model_urls = {
     'densenet161': 'https://download.pytorch.org/models/densenet161-8d451a50.pth',
 }
 
-class SepConv(nn.Module):
-    def __init__(self, channel_in, channel_out, kernel_size=3, stride=2, padding=1, affine=True):
-        super(SepConv, self).__init__()
-        self.op = nn.Sequential(
-            nn.Conv2d(channel_in, channel_in, kernel_size=kernel_size, stride=stride, padding=padding, groups=channel_in, bias=False),
-            nn.Conv2d(channel_in, channel_in, kernel_size=1, padding=0, bias=False),
-            nn.BatchNorm2d(channel_in, affine=affine),
-            nn.ReLU(inplace=False),
-            nn.Conv2d(channel_in, channel_in, kernel_size=kernel_size, stride=1, padding=padding, groups=channel_in, bias=False),
-            nn.Conv2d(channel_in, channel_out, kernel_size=1, padding=0, bias=False),
-            nn.BatchNorm2d(channel_out, affine=affine),
-            nn.ReLU(inplace=False),
-        )
-
-    def forward(self, x):
-        return self.op(x)
-
 class _DenseLayer(nn.Module):
     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, memory_efficient=False):
         super(_DenseLayer, self).__init__()
-        self.add_module('norm1', nn.BatchNorm2d(num_input_features)),
-        self.add_module('relu1', nn.ReLU(inplace=True)),
+        self.add_module('norm1', nn.BatchNorm2d(num_input_features))
+        self.add_module('relu1', nn.ReLU(inplace=True))
         self.add_module('conv1', nn.Conv2d(num_input_features, bn_size *
                                            growth_rate, kernel_size=1, stride=1,
-                                           bias=False)),
-        self.add_module('norm2', nn.BatchNorm2d(bn_size * growth_rate)),
-        self.add_module('relu2', nn.ReLU(inplace=True)),
+                                           bias=False))
+        self.add_module('norm2', nn.BatchNorm2d(bn_size * growth_rate))
+        self.add_module('relu2', nn.ReLU(inplace=True))
         self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate,
                                            kernel_size=3, stride=1, padding=1,
-                                           bias=False)),
+                                           bias=False))
         self.drop_rate = float(drop_rate)
         self.memory_efficient = memory_efficient
 
