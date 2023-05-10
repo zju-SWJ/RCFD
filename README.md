@@ -73,6 +73,8 @@ python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_densenet201/temp0.9/alpha0
 python ddim_eval.py --flagfile ./config/CIFAR10_EVAL.txt --logdir ./logs/CIFAR10/4_resnet18/temp0.95/alpha0.003/beta0.75
 ```
+## Pre-trained Models
+We provide some pre-trained models (1024-step base model, 8-step PD-obtained model, and densenet201) in [google drive](https://drive.google.com/drive/folders/1iv_KPqjtDcHz4yOY8NQNCSTOMgdGu78N?usp=sharing).
 
 ## Citation
 If you find this repository useful, please consider citing the following paper:
