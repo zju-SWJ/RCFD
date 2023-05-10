@@ -97,24 +97,6 @@ class Bottleneck(nn.Module):
 
         return out
 
-class SepConv(nn.Module):
-
-    def __init__(self, channel_in, channel_out, kernel_size=3, stride=2, padding=1, affine=True):
-        super(SepConv, self).__init__()
-        self.op = nn.Sequential(
-            nn.Conv2d(channel_in, channel_in, kernel_size=kernel_size, stride=stride, padding=padding, groups=channel_in, bias=False),
-            nn.Conv2d(channel_in, channel_in, kernel_size=1, padding=0, bias=False),
-            nn.BatchNorm2d(channel_in, affine=affine),
-            nn.ReLU(inplace=False),
-            nn.Conv2d(channel_in, channel_in, kernel_size=kernel_size, stride=1, padding=padding, groups=channel_in, bias=False),
-            nn.Conv2d(channel_in, channel_out, kernel_size=1, padding=0, bias=False),
-            nn.BatchNorm2d(channel_out, affine=affine),
-            nn.ReLU(inplace=False),
-        )
-
-    def forward(self, x):
-        return self.op(x)
-
 class ResNet(nn.Module):
     def __init__(self, block, layers, num_classes=100, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
