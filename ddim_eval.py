@@ -14,54 +14,29 @@ from score.both import get_inception_and_fid_score
 device = torch.device('cuda:0')
 
 FLAGS = flags.FLAGS
-# flags.DEFINE_bool('train', False, help='train from scratch')
-# flags.DEFINE_bool('eval', True, help='load model.pt and evaluate FID and IS')
 # UNet
-flags.DEFINE_integer('ch', 256, help='base channel of UNet')
-flags.DEFINE_multi_integer('ch_mult', [1, 1, 1], help='channel multiplier')
-flags.DEFINE_multi_integer('attn', [1, 2], help='add attention to these levels')
-flags.DEFINE_integer('num_res_blocks', 3, help='# resblock in each level')
-flags.DEFINE_float('dropout', 0.2, help='dropout rate of resblock')
+flags.DEFINE_integer('ch', 128, help='base channel of UNet')
+flags.DEFINE_multi_integer('ch_mult', [1, 2, 2, 2], help='channel multiplier')
+flags.DEFINE_multi_integer('attn', [1], help='add attention to these levels')
+flags.DEFINE_integer('num_res_blocks', 2, help='# resblock in each level')
+flags.DEFINE_float('dropout', 0., help='dropout rate of resblock')
 # Gaussian Diffusion
-flags.DEFINE_enum('mean_type', 'xstart', ['xprev', 'xstart', 'epsilon'], help='predict variable')
+flags.DEFINE_enum('mean_type', 'xstart', ['xstart', 'epsilon'], help='predict variable')
 flags.DEFINE_enum('var_type', 'fixedlarge', ['fixedlarge', 'fixedsmall'], help='variance type')
 # Training
 flags.DEFINE_integer('img_size', 32, help='image size')
 flags.DEFINE_integer('batch_size', 128, help='batch size')
 flags.DEFINE_integer('num_workers', 4, help='workers of Dataloader')
-flags.DEFINE_string('gpu_id', '0', help='multi gpu training')
+flags.DEFINE_string('gpu_id', '0', help='single gpu training')
 flags.DEFINE_bool('conditional', False, help='use conditional or not')
 flags.DEFINE_integer('class_num', 10, help='class num')
 # Logging & Sampling
-flags.DEFINE_string('logdir', './logs/CIFAR10/new_unet_x/1024', help='log directory')
+flags.DEFINE_string('logdir', './logs/CIFAR10/1024', help='log directory')
 flags.DEFINE_integer('stride', 1, help='sampling stride')
-# flags.DEFINE_integer('sample_size', 64, "sampling size of images")
-# flags.DEFINE_integer('sample_step', 1000, help='frequency of sampling')
-# Evaluation
-# flags.DEFINE_integer('save_step', 5000, help='frequency of saving checkpoints, 0 to disable during training')
-# flags.DEFINE_integer('eval_step', 0, help='frequency of evaluating model, 0 to disable during training')
 flags.DEFINE_integer('num_images', 50000, help='the number of generated images for evaluation')
 flags.DEFINE_bool('fid_use_torch', False, help='calculate IS and FID on gpu')
 flags.DEFINE_string('fid_cache', './stats/cifar10.train.npz', help='FID cache')
 flags.DEFINE_integer('seed', 0, help='seed')
-
-
-def ema(source, target, decay):
-    source_dict = source.state_dict()
-    target_dict = target.state_dict()
-    for key in source_dict.keys():
-        target_dict[key].data.copy_(
-            target_dict[key].data * decay +
-            source_dict[key].data * (1 - decay))
-
-
-def get_rank():
-    if not dist.is_available():
-        return 0
-    if not dist.is_initialized():
-        return 0
-    return dist.get_rank()
-
 
 def evaluate(sampler, model):
     model.eval()
@@ -83,7 +58,7 @@ def evaluate(sampler, model):
 
 
 def eval():
-    ckpt = torch.load(os.path.join(FLAGS.logdir, 'ckpt.pt'))
+    ckpt = torch.load(os.path.join(FLAGS.logdir, 'ckpt.pt'), map_location='cuda:0')
     T = ckpt['T']
     time_scale = ckpt['time_scale']
     # model setup
@@ -100,18 +75,20 @@ def eval():
         os.makedirs(os.path.join(FLAGS.logdir, 'ddim_stride' + str(FLAGS.stride)))
     if time_scale != 1:
         model.load_state_dict(ckpt['net_model'])
+        del ckpt
         (IS, IS_std), FID, samples = evaluate(sampler, model)
         print("Model     : IS:%6.3f(%.3f), FID:%7.3f" % (IS, IS_std, FID))
         with open(os.path.join(FLAGS.logdir, 'ddim_stride' + str(FLAGS.stride), 'result_seed' + str(FLAGS.seed) + '.txt'), 'w') as f:
-                f.write('IS: ' + str(IS))
-                f.write('IS_std: ' + str(IS_std))
-                f.write('FID: ' + str(FID))
+            f.write('IS: ' + str(IS))
+            f.write('IS_std: ' + str(IS_std))
+            f.write('FID: ' + str(FID))
         save_image(
             torch.tensor(samples[:256]),
             os.path.join(FLAGS.logdir, 'ddim_stride' + str(FLAGS.stride), 'samples_seed' + str(FLAGS.seed) + '.png'),
             nrow=16)
     else:
         model.load_state_dict(ckpt['ema_model'])
+        del ckpt
         (IS, IS_std), FID, samples = evaluate(sampler, model)
         print("Model(EMA): IS:%6.3f(%.3f), FID:%7.3f" % (IS, IS_std, FID))
         with open(os.path.join(FLAGS.logdir, 'ddim_stride' + str(FLAGS.stride), 'result_seed' + str(FLAGS.seed) + '.txt'), 'w') as f:
@@ -136,6 +113,7 @@ def main(argv):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.enabled = True
+    # Fully deterministic
     # suppress annoying inception_v3 initialization warning
     warnings.simplefilter(action='ignore', category=FutureWarning)
     eval()

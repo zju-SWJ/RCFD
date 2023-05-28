@@ -9,7 +9,7 @@
 --ch_mult=2
 --ch_mult=2
 --ch_mult=2
---dropout=0.1
+--dropout=0.
 --num_res_blocks=2
 
 --fid_cache=./stats/cifar10.train.npz
@@ -19,4 +19,4 @@
 --class_num=10
 --noconditional
 
---logdir=./logs/CIFAR10/new_unet_x/1024
+--logdir=./logs/CIFAR10/1024

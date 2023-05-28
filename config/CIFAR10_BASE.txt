@@ -28,4 +28,4 @@
 --class_num=10
 --noconditional
 
---logdir=./logs/CIFAR10/new_unet_x/1024
+--logdir=./logs/CIFAR10/1024

@@ -26,5 +26,5 @@
 --class_num=10
 --noconditional
 
---logdir=./logs/CIFAR10/new_unet_x/512
---base_ckpt=./logs/CIFAR10/new_unet_x/1024
+--logdir=./logs/CIFAR10/4
+--base_ckpt=./logs/CIFAR10/8
